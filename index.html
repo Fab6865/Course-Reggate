@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Course de Voilier</title>
+    <title>Sailing Race Game</title>
     <style>
         * {
             margin: 0;
@@ -12,25 +12,20 @@
         }
 
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Arial', sans-serif;
             background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
             color: white;
             overflow-x: hidden;
         }
 
-        .container {
-            max-width: 400px;
-            margin: 0 auto;
-            padding: 20px;
-            min-height: 100vh;
-        }
-
-        .menu {
+        .screen {
             display: none;
+            min-height: 100vh;
+            padding: 20px;
             animation: fadeIn 0.3s ease-in;
         }
 
-        .menu.active {
+        .screen.active {
             display: block;
         }
 
@@ -42,104 +37,130 @@
         .header {
             text-align: center;
             margin-bottom: 30px;
-            background: rgba(255,255,255,0.1);
-            padding: 20px;
-            border-radius: 15px;
-            backdrop-filter: blur(10px);
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+
+        .nav-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            justify-content: center;
+            margin-bottom: 30px;
         }
 
         .btn {
-            width: 100%;
-            padding: 15px;
-            margin: 10px 0;
-            border: none;
-            border-radius: 10px;
-            font-size: 16px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            background: linear-gradient(45deg, #4CAF50, #45a049);
+            padding: 12px 24px;
+            background: linear-gradient(145deg, #3498db, #2980b9);
             color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
         }
 
         .btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
         }
 
         .btn:active {
             transform: translateY(0);
         }
 
-        .btn-secondary {
-            background: linear-gradient(45deg, #2196F3, #1976D2);
+        .btn.success {
+            background: linear-gradient(145deg, #27ae60, #229954);
         }
 
-        .btn-danger {
-            background: linear-gradient(45deg, #f44336, #d32f2f);
+        .btn.warning {
+            background: linear-gradient(145deg, #f39c12, #e67e22);
         }
 
-        .btn-warning {
-            background: linear-gradient(45deg, #ff9800, #f57c00);
+        .btn.danger {
+            background: linear-gradient(145deg, #e74c3c, #c0392b);
         }
 
-        .race-controls {
+        .card {
             background: rgba(255,255,255,0.1);
-            padding: 20px;
             border-radius: 15px;
-            margin: 20px 0;
+            padding: 25px;
+            margin: 15px 0;
             backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.2);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+
+        .form-group select, .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            background: rgba(255,255,255,0.9);
+            color: #333;
+            font-size: 16px;
         }
 
         .slider-container {
             margin: 20px 0;
         }
 
-        .slider-container label {
-            display: block;
-            margin-bottom: 10px;
-            font-weight: bold;
-        }
-
         .slider {
             width: 100%;
-            height: 30px;
-            -webkit-appearance: none;
-            appearance: none;
-            border-radius: 15px;
+            height: 8px;
+            border-radius: 5px;
+            background: #ddd;
             outline: none;
-            background: rgba(255,255,255,0.3);
+            -webkit-appearance: none;
         }
 
         .slider::-webkit-slider-thumb {
-            -webkit-appearance: none;
             appearance: none;
-            width: 30px;
-            height: 30px;
+            width: 25px;
+            height: 25px;
             border-radius: 50%;
-            background: #4CAF50;
+            background: #3498db;
             cursor: pointer;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.3);
         }
 
         .optimization-indicator {
-            text-align: center;
             padding: 10px;
-            border-radius: 10px;
-            margin: 10px 0;
+            border-radius: 8px;
+            text-align: center;
             font-weight: bold;
-            font-size: 18px;
+            margin: 10px 0;
+            transition: all 0.3s ease;
         }
 
-        .optimal {
-            background: rgba(76, 175, 80, 0.8);
+        .optimization-indicator.optimal {
+            background: #27ae60;
+            color: white;
         }
 
-        .medium {
-            background: rgba(255, 152, 0, 0.8);
+        .optimization-indicator.good {
+            background: #f39c12;
+            color: white;
         }
 
-        .poor {
-            background: rgba(244, 67, 54, 0.8);
+        .optimization-indicator.poor {
+            background: #e74c3c;
+            color: white;
         }
 
         .race-map {
@@ -150,90 +171,154 @@
             position: relative;
             overflow: hidden;
             margin: 20px 0;
-            border: 3px solid #2C5282;
+            border: 3px solid rgba(255,255,255,0.3);
         }
 
         .race-track {
             position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-image: 
-                repeating-linear-gradient(
-                    90deg,
-                    transparent,
-                    transparent 48px,
-                    rgba(255,255,255,0.1) 48px,
-                    rgba(255,255,255,0.1) 50px
-                );
+            top: 50%;
+            left: 10%;
+            right: 10%;
+            height: 4px;
+            background: linear-gradient(90deg, #FFD700, #FFA500, #FF6347, #32CD32);
+            border-radius: 2px;
+            transform: translateY(-50%);
         }
 
         .checkpoint {
             position: absolute;
-            width: 30px;
-            height: 30px;
+            width: 20px;
+            height: 20px;
             background: #FFD700;
-            border: 3px solid #FFA500;
+            border: 3px solid white;
             border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            font-size: 12px;
-            color: #333;
-            animation: pulse 2s infinite;
+            top: 50%;
+            transform: translateY(-50%);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
         }
 
-        .checkpoint.passed {
-            background: #4CAF50;
-            border-color: #45a049;
+        .checkpoint.start {
+            left: 8%;
+            background: #32CD32;
         }
 
-        .sailboat {
+        .checkpoint.mid1 {
+            left: 35%;
+            background: #FFA500;
+        }
+
+        .checkpoint.mid2 {
+            left: 65%;
+            background: #FF6347;
+        }
+
+        .checkpoint.finish {
+            right: 8%;
+            background: #FFD700;
+        }
+
+        .player-boat {
             position: absolute;
-            width: 25px;
-            height: 25px;
-            font-size: 20px;
-            transition: all 0.5s ease;
+            width: 40px;
+            height: 30px;
+            top: 50%;
+            transform: translateY(-50%);
+            transition: left 1s ease;
             z-index: 10;
-            animation: sailing 3s ease-in-out infinite;
-        }
-
-        @keyframes sailing {
-            0%, 100% { transform: rotate(-2deg); }
-            50% { transform: rotate(2deg); }
         }
 
         .competitor-boat {
             position: absolute;
-            width: 20px;
-            height: 20px;
-            font-size: 16px;
-            z-index: 5;
+            width: 35px;
+            height: 25px;
+            top: 50%;
+            transform: translateY(-50%);
             opacity: 0.8;
+            z-index: 5;
         }
 
-        .race-path {
+        .boat-animation {
+            animation: sailing 3s ease-in-out infinite;
+        }
+
+        @keyframes sailing {
+            0%, 100% { transform: translateY(-50%) rotate(-2deg); }
+            50% { transform: translateY(-60%) rotate(2deg); }
+        }
+
+        .wave-effect {
             position: absolute;
-            stroke: #FFD700;
-            stroke-width: 3;
-            stroke-dasharray: 10,5;
-            fill: none;
-            opacity: 0.7;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                radial-gradient(circle at 20% 20%, rgba(255,255,255,0.1) 1px, transparent 1px),
+                radial-gradient(circle at 60% 60%, rgba(255,255,255,0.1) 1px, transparent 1px),
+                radial-gradient(circle at 80% 30%, rgba(255,255,255,0.1) 1px, transparent 1px);
+            background-size: 50px 50px, 70px 70px, 90px 90px;
+            animation: waveMovement 8s linear infinite;
+            opacity: 0.6;
+        }
+
+        @keyframes waveMovement {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-100px); }
+        }
+
+        .race-legend {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 15px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255,255,255,0.1);
+            padding: 8px 12px;
+            border-radius: 20px;
+            font-size: 14px;
+        }
+
+        .legend-color {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            border: 2px solid white;
+        }
+
+        .wind-indicator {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(255,255,255,0.9);
+            color: #333;
+            padding: 8px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
         }
 
         .race-info {
-            background: rgba(255,255,255,0.1);
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .info-card {
+            background: rgba(255,255,255,0.15);
             padding: 15px;
             border-radius: 10px;
-            margin: 10px 0;
+            text-align: center;
         }
 
         .progress-bar {
             width: 100%;
             height: 20px;
-            background: rgba(255,255,255,0.3);
+            background: rgba(255,255,255,0.2);
             border-radius: 10px;
             overflow: hidden;
             margin: 10px 0;
@@ -241,884 +326,1410 @@
 
         .progress-fill {
             height: 100%;
-            background: linear-gradient(90deg, #4CAF50, #45a049);
+            background: linear-gradient(90deg, #27ae60, #2ecc71);
             transition: width 0.3s ease;
         }
 
-        .shop-item {
-            background: rgba(255,255,255,0.1);
-            padding: 15px;
-            margin: 10px 0;
-            border-radius: 10px;
-            backdrop-filter: blur(5px);
-        }
-
-        .weather-alert {
-            background: rgba(255, 193, 7, 0.8);
-            color: #333;
-            padding: 15px;
-            border-radius: 10px;
-            margin: 10px 0;
-            text-align: center;
-            animation: pulse 2s infinite;
-        }
-
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-        }
-
-        .stats {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-            margin: 20px 0;
-        }
-
-        .stat-card {
-            background: rgba(255,255,255,0.1);
-            padding: 15px;
-            border-radius: 10px;
-            text-align: center;
-        }
-
         .leaderboard {
-            background: rgba(255,255,255,0.1);
-            padding: 15px;
-            border-radius: 10px;
-            margin: 10px 0;
+            max-height: 400px;
+            overflow-y: auto;
         }
 
         .leaderboard-item {
             display: flex;
             justify-content: space-between;
+            align-items: center;
             padding: 10px;
-            border-bottom: 1px solid rgba(255,255,255,0.2);
+            margin: 5px 0;
+            background: rgba(255,255,255,0.1);
+            border-radius: 8px;
         }
 
-        .nav-buttons {
-            position: fixed;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
+        .shop-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            margin: 10px 0;
+            background: rgba(255,255,255,0.1);
+            border-radius: 10px;
+        }
+
+        .weather-alert {
+            background: rgba(255,193,7,0.9);
+            color: #333;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 10px 0;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .stat-card {
+            background: rgba(255,255,255,0.1);
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .save-buttons {
             display: flex;
             gap: 10px;
-            z-index: 100;
+            margin: 20px 0;
+            flex-wrap: wrap;
         }
 
-        .nav-btn {
-            padding: 10px 15px;
-            background: rgba(0,0,0,0.8);
-            border: none;
-            border-radius: 20px;
-            color: white;
-            cursor: pointer;
-            backdrop-filter: blur(10px);
-        }
-
-        .time-display {
-            font-size: 24px;
-            text-align: center;
-            color: #FFD700;
-            margin: 10px 0;
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2em;
+            }
+            .nav-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+            .btn {
+                min-width: 200px;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <!-- Menu Principal -->
-        <div id="mainMenu" class="menu active">
-            <div class="header">
-                <h1>🏁 Course de Voilier</h1>
-                <div class="time-display" id="currentTime"></div>
-            </div>
-            <button class="btn" onclick="showMenu('raceSetup')">Nouvelle Course</button>
-            <button class="btn btn-secondary" onclick="showMenu('raceActive')" id="continueRaceBtn" style="display: none;">Continuer la Course</button>
-            <button class="btn btn-secondary" onclick="showMenu('shop')">Boutique</button>
-            <button class="btn btn-secondary" onclick="showMenu('rankings')">Classements</button>
-            <button class="btn btn-secondary" onclick="showMenu('manager')">Manager</button>
-            <button class="btn btn-warning" onclick="saveGame()">Sauvegarder</button>
-            <button class="btn btn-danger" onclick="loadGame()">Charger</button>
+    <!-- Écran principal -->
+    <div id="main-screen" class="screen active">
+        <div class="header">
+            <h1>⛵ Sailing Race</h1>
+            <p>Naviguez vers la victoire !</p>
+        </div>
+        
+        <div class="nav-buttons">
+            <button class="btn success" onclick="showScreen('race-setup')">🏁 Nouvelle Course</button>
+            <button class="btn" onclick="showScreen('race-screen')" id="continue-race-btn" style="display: none;">📍 Continuer la Course</button>
+            <button class="btn" onclick="showScreen('shop')">🛒 Boutique</button>
+            <button class="btn" onclick="showScreen('rankings')">🏆 Classements</button>
+            <button class="btn" onclick="showScreen('manager')">⚙️ Manager</button>
         </div>
 
-        <!-- Configuration de Course -->
-        <div id="raceSetup" class="menu">
-            <div class="header">
-                <h2>Configuration de Course</h2>
-            </div>
-            <div class="race-controls">
-                <div class="slider-container">
-                    <label>Niveau de Difficulté</label>
-                    <select id="difficultySelect" class="btn">
-                        <option value="beginner">Débutant</option>
-                        <option value="intermediate">Intermédiaire</option>
-                        <option value="advanced">Avancé</option>
-                        <option value="expert">Expert</option>
-                    </select>
-                </div>
-                <div class="slider-container">
-                    <label>Durée de Course</label>
-                    <select id="durationSelect" class="btn">
-                        <option value="5">5 minutes</option>
-                        <option value="15">15 minutes</option>
-                        <option value="30">30 minutes</option>
-                        <option value="60">1 heure</option>
-                        <option value="360">6 heures</option>
-                        <option value="720">12 heures</option>
-                        <option value="1440">24 heures</option>
-                        <option value="4320">72 heures</option>
-                    </select>
-                </div>
-            </div>
-            <button class="btn" onclick="startRace()">Lancer la Course</button>
+        <div class="save-buttons">
+            <button class="btn warning" onclick="saveGame()">💾 Sauvegarder</button>
+            <button class="btn" onclick="loadGame()">📁 Charger</button>
+            <button class="btn" onclick="exportSave()">📤 Exporter</button>
+            <input type="file" id="import-file" style="display: none;" onchange="importSave()" accept=".json">
+            <button class="btn" onclick="document.getElementById('import-file').click()">📥 Importer</button>
         </div>
 
-        <!-- Course Active -->
-        <div id="raceActive" class="menu">
-            <div class="header">
-                <h2>Course en Cours</h2>
-            </div>
-            
-            <!-- Carte de Course -->
-            <div class="race-map" id="raceMap">
-                <div class="race-track"></div>
-                <svg class="race-path" width="100%" height="100%">
-                    <path id="racePath" d="M50,250 Q150,200 250,150 Q300,100 350,80" />
-                </svg>
-                
-                <!-- Checkpoints -->
-                <div class="checkpoint" style="left: 50px; top: 220px;" id="checkpoint1">1</div>
-                <div class="checkpoint" style="left: 150px; top: 170px;" id="checkpoint2">2</div>
-                <div class="checkpoint" style="left: 250px; top: 120px;" id="checkpoint3">3</div>
-                <div class="checkpoint" style="left: 330px; top: 50px;" id="checkpoint4">🏁</div>
-                
-                <!-- Voilier du joueur -->
-                <div class="sailboat" id="playerBoat" style="left: 50px; top: 250px;">⛵</div>
-                
-                <!-- Concurrents -->
-                <div class="competitor-boat" style="left: 60px; top: 260px;">🚢</div>
-                <div class="competitor-boat" style="left: 40px; top: 240px;">⛵</div>
-                <div class="competitor-boat" style="left: 70px; top: 270px;">🛥️</div>
-            </div>
-            
-            <div class="race-info">
-                <div class="time-display" id="raceTimer">00:00</div>
-                <div class="progress-bar">
-                    <div class="progress-fill" id="raceProgress"></div>
-                </div>
-                <div id="racePosition">Position: 1/10</div>
-                <div id="raceSpeed">Vitesse: 0 nœuds</div>
-            </div>
-
-            <div id="weatherAlert" class="weather-alert" style="display: none;">
-                🌪️ Alerte Météo: Vent fort du Nord-Ouest!
-            </div>
-
-            <div class="race-controls">
-                <div class="slider-container">
-                    <label>Réglage des Voiles (0-100%)</label>
-                    <input type="range" id="sailTrim" class="slider" min="0" max="100" value="50">
-                    <span id="sailTrimValue">50%</span>
-                </div>
-                
-                <div class="slider-container">
-                    <label>Cap (0-360°)</label>
-                    <input type="range" id="heading" class="slider" min="0" max="360" value="180">
-                    <span id="headingValue">180°</span>
-                </div>
-            </div>
-
-            <div class="optimization-indicator" id="optimizationStatus">
-                État: Moyen
-            </div>
-        </div>
-
-        <!-- Boutique -->
-        <div id="shop" class="menu">
-            <div class="header">
-                <h2>Boutique</h2>
-                <div>💰 Argent: <span id="playerMoney">1000</span></div>
-            </div>
-            
-            <div class="shop-item">
-                <h3>Voiles Performantes</h3>
-                <p>Augmente la vitesse de 15%</p>
-                <p>Prix: <span id="sailsPrice">500</span> 💰</p>
-                <button class="btn" onclick="buyUpgrade('sails')">Acheter</button>
-            </div>
-            
-            <div class="shop-item">
-                <h3>Coque Renforcée</h3>
-                <p>Augmente la stabilité de 20%</p>
-                <p>Prix: <span id="hullPrice">750</span> 💰</p>
-                <button class="btn" onclick="buyUpgrade('hull')">Acheter</button>
-            </div>
-            
-            <div class="shop-item">
-                <h3>Moteur Hybride</h3>
-                <p>Bonus de vitesse par vent faible</p>
-                <p>Prix: <span id="enginePrice">1200</span> 💰</p>
-                <button class="btn" onclick="buyUpgrade('engine')">Acheter</button>
-            </div>
-        </div>
-
-        <!-- Classements -->
-        <div id="rankings" class="menu">
-            <div class="header">
-                <h2>Classements</h2>
-            </div>
-            
-            <div class="stats">
+        <div class="card">
+            <h3>Statistiques du Joueur</h3>
+            <div class="stats-grid">
                 <div class="stat-card">
-                    <h3>Courses Gagnées</h3>
-                    <div id="racesWon">0</div>
+                    <h4>Argent</h4>
+                    <p id="player-money">1000 €</p>
                 </div>
                 <div class="stat-card">
-                    <h3>Meilleur Temps</h3>
-                    <div id="bestTime">--:--</div>
+                    <h4>Courses Terminées</h4>
+                    <p id="races-completed">0</p>
+                </div>
+                <div class="stat-card">
+                    <h4>Victoires</h4>
+                    <p id="victories">0</p>
+                </div>
+                <div class="stat-card">
+                    <h4>Meilleur Temps</h4>
+                    <p id="best-time">--:--</p>
                 </div>
             </div>
-
-            <div class="leaderboard">
-                <h3>Dernières Courses</h3>
-                <div id="recentRaces"></div>
-            </div>
-        </div>
-
-        <!-- Manager -->
-        <div id="manager" class="menu">
-            <div class="header">
-                <h2>Manager du Jeu</h2>
-            </div>
-            
-            <div class="race-controls">
-                <div class="slider-container">
-                    <label>Prix Voiles: <span id="sailsPriceManager">500</span></label>
-                    <input type="range" id="sailsPriceSlider" class="slider" min="100" max="2000" value="500">
-                </div>
-                
-                <div class="slider-container">
-                    <label>Prix Coque: <span id="hullPriceManager">750</span></label>
-                    <input type="range" id="hullPriceSlider" class="slider" min="200" max="3000" value="750">
-                </div>
-                
-                <div class="slider-container">
-                    <label>Prix Moteur: <span id="enginePriceManager">1200</span></label>
-                    <input type="range" id="enginePriceSlider" class="slider" min="500" max="5000" value="1200">
-                </div>
-                
-                <div class="slider-container">
-                    <label>Argent de Départ: <span id="startingMoneyManager">1000</span></label>
-                    <input type="range" id="startingMoneySlider" class="slider" min="500" max="5000" value="1000">
-                </div>
-            </div>
-            
-            <button class="btn" onclick="applyManagerSettings()">Appliquer les Réglages</button>
-            <button class="btn btn-danger" onclick="resetGame()">Réinitialiser le Jeu</button>
         </div>
     </div>
 
-    <!-- Navigation -->
-    <div class="nav-buttons">
-        <button class="nav-btn" onclick="showMenu('mainMenu')">Menu</button>
-        <button class="nav-btn" onclick="showMenu('raceActive')" id="raceNavBtn" style="display: none;">Course</button>
+    <!-- Configuration de course -->
+    <div id="race-setup" class="screen">
+        <div class="header">
+            <h1>🏁 Configuration de Course</h1>
+        </div>
+        
+        <div class="nav-buttons">
+            <button class="btn" onclick="showScreen('main-screen')">🏠 Accueil</button>
+        </div>
+
+        <div class="card">
+            <div class="form-group">
+                <label>Niveau de Difficulté</label>
+                <select id="difficulty-select">
+                    <option value="debutant">Débutant (Bonus vitesse +20%)</option>
+                    <option value="intermediaire">Intermédiaire (Normal)</option>
+                    <option value="expert">Expert (Bonus récompenses +50%)</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Durée de la Course</label>
+                <select id="duration-select">
+                    <option value="5">5 minutes</option>
+                    <option value="15">15 minutes</option>
+                    <option value="30">30 minutes</option>
+                    <option value="60">1 heure</option>
+                    <option value="180">3 heures</option>
+                    <option value="720">12 heures</option>
+                    <option value="1440">24 heures</option>
+                    <option value="4320">3 jours</option>
+                </select>
+            </div>
+
+            <button class="btn success" onclick="startRace()">🚀 Lancer la Course</button>
+        </div>
+    </div>
+
+    <!-- Écran de course -->
+    <div id="race-screen" class="screen">
+        <div class="header">
+            <h1>🏁 Course en Cours</h1>
+        </div>
+        
+        <div class="nav-buttons">
+            <button class="btn" onclick="showScreen('main-screen')">🏠 Accueil</button>
+            <button class="btn" onclick="showScreen('shop')">🛒 Boutique</button>
+            <button class="btn" onclick="showScreen('rankings')">🏆 Classements</button>
+            <button class="btn danger" onclick="abandonRace()">🚫 Abandonner</button>
+        </div>
+
+        <div class="race-info">
+            <div class="info-card">
+                <h4>Position</h4>
+                <p id="race-position">1/10</p>
+            </div>
+            <div class="info-card">
+                <h4>Vitesse</h4>
+                <p id="race-speed">15 nœuds</p>
+            </div>
+            <div class="info-card">
+                <h4>Temps Écoulé</h4>
+                <p id="race-time">00:00</p>
+            </div>
+            <div class="info-card">
+                <h4>Progression</h4>
+                <p id="race-progress">0%</p>
+            </div>
+        </div>
+
+        <div class="progress-bar">
+            <div class="progress-fill" id="progress-bar"></div>
+        </div>
+
+        <div class="race-map">
+            <div class="wave-effect"></div>
+            <div class="wind-indicator" id="wind-indicator">
+                🌬️ Vent: 15 nds NE
+            </div>
+            
+            <div class="race-track"></div>
+            
+            <div class="checkpoint start"></div>
+            <div class="checkpoint mid1"></div>
+            <div class="checkpoint mid2"></div>
+            <div class="checkpoint finish"></div>
+            
+            <div class="player-boat boat-animation" id="player-boat">
+                <svg viewBox="0 0 40 30" style="width: 100%; height: 100%;">
+                    <polygon points="20,5 10,25 30,25" fill="#8B4513"/>
+                    <polygon points="20,5 20,22 17,22" fill="#FFF"/>
+                    <circle cx="20" cy="15" r="2" fill="#FF0000"/>
+                </svg>
+            </div>
+            
+            <div class="competitor-boat" id="competitor-1" style="left: 25%; top: 45%;">
+                <svg viewBox="0 0 35 25" style="width: 100%; height: 100%;">
+                    <polygon points="17,3 8,22 26,22" fill="#654321"/>
+                    <polygon points="17,3 17,19 15,19" fill="#E6E6FA"/>
+                </svg>
+            </div>
+            
+            <div class="competitor-boat" id="competitor-2" style="left: 20%; top: 55%;">
+                <svg viewBox="0 0 35 25" style="width: 100%; height: 100%;">
+                    <polygon points="17,3 8,22 26,22" fill="#2F4F4F"/>
+                    <polygon points="17,3 17,19 15,19" fill="#F0F8FF"/>
+                </svg>
+            </div>
+            
+            <div class="competitor-boat" id="competitor-3" style="left: 15%; top: 60%;">
+                <svg viewBox="0 0 35 25" style="width: 100%; height: 100%;">
+                    <polygon points="17,3 8,22 26,22" fill="#556B2F"/>
+                    <polygon points="17,3 17,19 15,19" fill="#FFFACD"/>
+                </svg>
+            </div>
+        </div>
+
+        <div class="race-legend">
+            <div class="legend-item">
+                <div class="legend-color" style="background: #32CD32;"></div>
+                <span>Départ</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: #FFA500;"></div>
+                <span>Checkpoint 1</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: #FF6347;"></div>
+                <span>Checkpoint 2</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: #FFD700;"></div>
+                <span>Arrivée</span>
+            </div>
+        </div>
+
+        <div id="weather-alert" class="weather-alert" style="display: none;">
+            ⛈️ Alerte Météo : Tempête approchant ! Ajustez vos voiles !
+        </div>
+
+        <div class="card">
+            <h3>Contrôles du Voilier</h3>
+            
+            <div class="form-group">
+                <label>Type de Voiles</label>
+                <select id="sail-type-select" onchange="changeSailType()">
+                    <option value="storm">⛈️ Voiles de Tempête (Stable)</option>
+                    <option value="reduced">🌬️ Voiles Réduites (Équilibré)</option>
+                    <option value="full" selected>⛵ Voiles Complètes (Standard)</option>
+                    <option value="light">🍃 Voiles Légères (Vent faible)</option>
+                    <option value="spinnaker">🚀 Spinnaker (Vent arrière)</option>
+                </select>
+            </div>
+            
+            <div class="slider-container">
+                <label>Orientation des Voiles (0-100%)</label>
+                <input type="range" class="slider" id="sail-slider" min="0" max="100" value="50" oninput="updateSailOptimization()">
+                <p>Valeur: <span id="sail-value">50</span>%</p>
+            </div>
+
+            <div class="slider-container">
+                <label>Cap (0-360°)</label>
+                <input type="range" class="slider" id="heading-slider" min="0" max="360" value="180" oninput="updateHeadingOptimization()">
+                <p>Valeur: <span id="heading-value">180</span>°</p>
+            </div>
+
+            <div class="optimization-indicator" id="optimization-status">
+                🟡 Optimisation Moyenne
+            </div>
+
+            <div class="race-info">
+                <div class="info-card">
+                    <h4>Fatigue Équipage</h4>
+                    <p id="crew-fatigue">0%</p>
+                </div>
+                <div class="info-card">
+                    <h4>Pilote Auto</h4>
+                    <button class="btn" id="autopilot-btn" onclick="toggleAutopilot()">▶️ Activer</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Boutique -->
+    <div id="shop" class="screen">
+        <div class="header">
+            <h1>🛒 Boutique</h1>
+            <p>Argent disponible: <span id="shop-money">1000 €</span></p>
+        </div>
+        
+        <div class="nav-buttons">
+            <button class="btn" onclick="showScreen('main-screen')">🏠 Accueil</button>
+            <button class="btn" onclick="showScreen('race-screen')" id="shop-race-btn" style="display: none;">📍 Retour à la Course</button>
+        </div>
+
+        <div class="card">
+            <h3>Améliorations Disponibles</h3>
+            <div id="shop-items">
+                <!-- Items générés par JavaScript -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Classements -->
+    <div id="rankings" class="screen">
+        <div class="header">
+            <h1>🏆 Classements</h1>
+        </div>
+        
+        <div class="nav-buttons">
+            <button class="btn" onclick="showScreen('main-screen')">🏠 Accueil</button>
+            <button class="btn" onclick="showScreen('race-screen')" id="rankings-race-btn" style="display: none;">📍 Retour à la Course</button>
+        </div>
+
+        <div class="card">
+            <h3>Historique des Courses</h3>
+            <div class="leaderboard" id="race-history">
+                <!-- Historique généré par JavaScript -->
+            </div>
+        </div>
+
+        <div class="card">
+            <h3>Classement Actuel</h3>
+            <div class="leaderboard" id="current-leaderboard">
+                <!-- Classement généré par JavaScript -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Manager -->
+    <div id="manager" class="screen">
+        <div class="header">
+            <h1>⚙️ Manager</h1>
+        </div>
+        
+        <div class="nav-buttons">
+            <button class="btn" onclick="showScreen('main-screen')">🏠 Accueil</button>
+        </div>
+
+        <div class="card">
+            <h3>Gestion des Prix</h3>
+            <div id="manager-items">
+                <!-- Items de gestion générés par JavaScript -->
+            </div>
+            <button class="btn warning" onclick="resetPrices()">🔄 Réinitialiser les Prix</button>
+        </div>
+
+        <div class="card">
+            <h3>Statistiques du Jeu</h3>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <h4>Argent Total Gagné</h4>
+                    <p id="total-earned">0 €</p>
+                </div>
+                <div class="stat-card">
+                    <h4>Temps Total Joué</h4>
+                    <p id="total-playtime">0h 0m</p>
+                </div>
+                <div class="stat-card">
+                    <h4>Améliorations Achetées</h4>
+                    <p id="upgrades-bought">0</p>
+                </div>
+            </div>
+        </div>
     </div>
 
     <script>
         // Variables globales du jeu
         let gameState = {
-            currentMenu: 'mainMenu',
-            race: {
-                active: false,
-                startTime: null,
-                duration: 5,
-                difficulty: 'beginner',
-                progress: 0,
-                position: 1,
-                speed: 0,
-                sailTrim: 50,
-                heading: 180,
-                lastUpdateTime: null,
-                weatherEvent: null
-            },
             player: {
                 money: 1000,
-                upgrades: {
-                    sails: false,
-                    hull: false,
-                    engine: false
-                },
-                stats: {
-                    racesWon: 0,
-                    bestTime: null,
-                    recentRaces: []
-                }
+                racesCompleted: 0,
+                victories: 0,
+                bestTime: null,
+                totalEarned: 0,
+                totalPlaytime: 0,
+                upgradesBought: 0
             },
-            prices: {
-                sails: 500,
-                hull: 750,
-                engine: 1200,
-                startingMoney: 1000
-            }
+            currentRace: null,
+            upgrades: {
+                hull: 0,
+                sail: 0,
+                rudder: 0,
+                engine: 0,
+                autopilot: 0
+            },
+            raceHistory: [],
+            shopPrices: {
+                hull: 500,
+                sail: 300,
+                rudder: 200,
+                engine: 800,
+                autopilot: 1000
+            },
+            weatherIntervalMinutes: 5, // Intervalle entre intempéries (en minutes, modifiable par le manager)
+            startTime: Date.now()
         };
 
-        // Fonctions utilitaires
-        function showMenu(menuId) {
-            document.querySelectorAll('.menu').forEach(menu => {
-                menu.classList.remove('active');
+        // Données des améliorations
+        const upgradeData = {
+            hull: { name: "Coque Renforcée", effect: "Vitesse +5%", maxLevel: 10 },
+            sail: { name: "Voiles Haute Performance", effect: "Maniabilité +10%", maxLevel: 10 },
+            rudder: { name: "Gouvernail Optimisé", effect: "Contrôle +15%", maxLevel: 10 },
+            engine: { name: "Moteur Auxiliaire", effect: "Vitesse de base +20%", maxLevel: 5 },
+            autopilot: { name: "Pilote Automatique", effect: "Performance hors ligne +20%", maxLevel: 10 }
+        };
+
+        // Événements météo avec fréquence adaptative
+        const weatherEvents = [
+            { name: "Tempête", effect: "Réduction vitesse 30%", duration: 120000, sailChange: "storm" },
+            { name: "Vent Favorable", effect: "Bonus vitesse 20%", duration: 180000, sailChange: "spinnaker" },
+            { name: "Calme Plat", effect: "Vitesse réduite 50%", duration: 90000, sailChange: "light" },
+            { name: "Grain", effect: "Contrôle difficile", duration: 60000, sailChange: "reduced" },
+            { name: "Vent Arrière", effect: "Bonus spinnaker", duration: 150000, sailChange: "spinnaker" },
+            { name: "Vent de Travers", effect: "Voiles optimales", duration: 120000, sailChange: "full" }
+        ];
+
+        // Types de voiles
+        const sailTypes = {
+            storm: { name: "Voiles de Tempête", speed: 0.6, stability: 1.5 },
+            reduced: { name: "Voiles Réduites", speed: 0.8, stability: 1.2 },
+            full: { name: "Voiles Complètes", speed: 1.0, stability: 1.0 },
+            light: { name: "Voiles Légères", speed: 0.7, stability: 0.9 },
+            spinnaker: { name: "Spinnaker", speed: 1.3, stability: 0.7 }
+        };
+
+        // Initialisation du jeu
+        function initGame() {
+            loadGame();
+            updateUI();
+            // Boucle de mise à jour du jeu
+            setInterval(updateGame, 1000);
+            setInterval(checkWeatherEvent, 5000); // Vérification météo plus fréquente
+        }
+
+        // Affichage des écrans
+        function showScreen(screenId) {
+            document.querySelectorAll('.screen').forEach(screen => {
+                screen.classList.remove('active');
             });
-            document.getElementById(menuId).classList.add('active');
-            gameState.currentMenu = menuId;
+            document.getElementById(screenId).classList.add('active');
             
-            // Si on revient à l'écran de course, mettre à jour la position
-            if (menuId === 'raceActive' && gameState.race.active) {
-                updateRaceUI();
-                updateBoatPosition();
-            }
-            
-            // Afficher/cacher les boutons de navigation
-            const raceNavBtn = document.getElementById('raceNavBtn');
-            if (gameState.race.active) {
-                raceNavBtn.style.display = 'block';
-            } else {
-                raceNavBtn.style.display = 'none';
-            }
+            // Mise à jour des boutons de navigation
+            updateNavigationButtons();
         }
 
-        function formatTime(minutes) {
-            const hours = Math.floor(minutes / 60);
-            const mins = Math.floor(minutes % 60);
-            const secs = Math.floor((minutes % 1) * 60);
+        function updateNavigationButtons() {
+            const raceActive = gameState.currentRace !== null;
+            const continueBtn = document.getElementById('continue-race-btn');
+            const shopRaceBtn = document.getElementById('shop-race-btn');
+            const rankingsRaceBtn = document.getElementById('rankings-race-btn');
             
-            if (hours > 0) {
-                return `${hours}h ${mins}m ${secs}s`;
-            } else if (mins > 0) {
-                return `${mins}m ${secs}s`;
-            } else {
-                return `${secs}s`;
-            }
+            if (continueBtn) continueBtn.style.display = raceActive ? 'inline-block' : 'none';
+            if (shopRaceBtn) shopRaceBtn.style.display = raceActive ? 'inline-block' : 'none';
+            if (rankingsRaceBtn) rankingsRaceBtn.style.display = raceActive ? 'inline-block' : 'none';
         }
 
-        function updateCurrentTime() {
-            const now = new Date();
-            document.getElementById('currentTime').textContent = now.toLocaleTimeString('fr-FR');
-        }
-
-        function saveGame() {
-            try {
-                const saveData = {
-                    gameState: gameState,
-                    timestamp: Date.now()
-                };
-                
-                localStorage.setItem('sailboat_game_save', JSON.stringify(saveData));
-                alert('Jeu sauvegardé !');
-            } catch (error) {
-                alert('Erreur lors de la sauvegarde');
-            }
-        }
-
-        function loadGame() {
-            try {
-                const saveData = localStorage.getItem('sailboat_game_save');
-                if (saveData) {
-                    const parsedData = JSON.parse(saveData);
-                    
-                    // Calculer le temps écoulé hors ligne
-                    const offlineTime = (Date.now() - parsedData.timestamp) / 1000 / 60; // en minutes
-                    
-                    gameState = parsedData.gameState;
-                    
-                    if (gameState.race.active) {
-                        // Ajuster le temps de départ pour tenir compte du temps hors ligne
-                        gameState.race.startTime = Date.now() - (offlineTime * 60 * 1000);
-                        gameState.race.lastUpdateTime = Date.now();
-                        
-                        simulateOfflineProgress(offlineTime);
-                        document.getElementById('continueRaceBtn').style.display = 'block';
-                    }
-                    
-                    updateUI();
-                    alert('Jeu chargé !');
-                } else {
-                    alert('Aucune sauvegarde trouvée');
-                }
-            } catch (error) {
-                alert('Erreur lors du chargement');
-            }
-        }
-
-        function simulateOfflineProgress(offlineMinutes) {
-            if (!gameState.race.active || offlineMinutes <= 0) return;
-            
-            console.log(`Simulation de ${offlineMinutes.toFixed(2)} minutes hors ligne`);
-            
-            const totalRaceTime = gameState.race.duration;
-            
-            // Calculer l'efficacité basée sur les réglages actuels
-            const efficiency = calculateEfficiency();
-            const baseSpeed = getBaseSpeed();
-            const actualSpeed = baseSpeed * efficiency;
-            
-            // Calculer la progression pendant l'absence
-            const progressRate = (actualSpeed / 10) / totalRaceTime * 100; // progression par minute
-            const progressIncrease = progressRate * offlineMinutes;
-            
-            // Mettre à jour la progression
-            gameState.race.progress = Math.min(100, gameState.race.progress + progressIncrease);
-            
-            // Ajuster la position basée sur la progression
-            gameState.race.position = Math.max(1, Math.min(10, Math.floor(11 - (gameState.race.progress / 10))));
-            
-            console.log(`Progression après simulation: ${gameState.race.progress.toFixed(2)}%`);
-            console.log(`Position après simulation: ${gameState.race.position}`);
-            
-            // Vérifier si la course est terminée pendant l'absence
-            if (gameState.race.progress >= 100) {
-                endRace();
-            }
-        }
-
+        // Gestion des courses
         function startRace() {
-            const difficulty = document.getElementById('difficultySelect').value;
-            const duration = parseInt(document.getElementById('durationSelect').value);
+            const difficulty = document.getElementById('difficulty-select').value;
+            const duration = parseInt(document.getElementById('duration-select').value);
             
-            gameState.race = {
-                active: true,
-                startTime: Date.now(),
-                duration: duration,
+            gameState.currentRace = {
                 difficulty: difficulty,
-                progress: 0,
-                position: Math.floor(Math.random() * 5) + 3, // Position de départ aléatoire
-                speed: 0,
-                sailTrim: 50,
+                duration: duration * 60000, // Conversion en millisecondes
+                startTime: Date.now(),
+                position: Math.floor(Math.random() * 3) + 1,
+                totalDistance: 1000,
+                currentDistance: 0,
+                sailSetting: 50,
                 heading: 180,
-                lastUpdateTime: Date.now(),
-                weatherEvent: null
+                speed: 15,
+                weatherEffect: null,
+                currentSailType: 'full',
+                crewFatigue: 0,
+                lastWeatherChange: Date.now(),
+                autopilotActive: false
             };
             
-            // Sauvegarder immédiatement après avoir créé la course
-            const saveData = {
-                gameState: gameState,
-                timestamp: Date.now()
-            };
-            localStorage.setItem('sailboat_game_auto', JSON.stringify(saveData));
-            
-            document.getElementById('continueRaceBtn').style.display = 'block';
-            showMenu('raceActive');
+            showScreen('race-screen');
             updateRaceUI();
-            
-            console.log('Course démarrée et sauvegardée:', gameState.race);
-        }
-
-        function calculateEfficiency() {
-            const sailTrim = gameState.race.sailTrim;
-            const heading = gameState.race.heading;
-            
-            // Logique simplifiée d'optimisation
-            let efficiency = 0.5; // Base
-            
-            // Optimisation des voiles (optimal entre 60-80%)
-            if (sailTrim >= 60 && sailTrim <= 80) {
-                efficiency += 0.3;
-            } else if (sailTrim >= 40 && sailTrim <= 90) {
-                efficiency += 0.1;
-            }
-            
-            // Optimisation du cap (optimal entre 120-240°)
-            if (heading >= 120 && heading <= 240) {
-                efficiency += 0.2;
-            }
-            
-            // Bonus des améliorations
-            if (gameState.player.upgrades.sails) efficiency += 0.15;
-            if (gameState.player.upgrades.hull) efficiency += 0.1;
-            if (gameState.player.upgrades.engine) efficiency += 0.05;
-            
-            return Math.min(1, efficiency);
-        }
-
-        function getBaseSpeed() {
-            const difficultyMultiplier = {
-                'beginner': 1.2,
-                'intermediate': 1.0,
-                'advanced': 0.8,
-                'expert': 0.6
-            };
-            
-            return 10 * difficultyMultiplier[gameState.race.difficulty];
         }
 
         function updateRaceUI() {
-            if (!gameState.race.active) return;
+            if (!gameState.currentRace) return;
             
-            const now = Date.now();
-            const elapsedTime = (now - gameState.race.startTime) / 1000 / 60; // en minutes
-            const totalTime = gameState.race.duration;
+            const race = gameState.currentRace;
+            const elapsed = Date.now() - race.startTime;
+            const progress = Math.min((elapsed / race.duration) * 100, 100);
             
-            // Calculer la progression
-            const efficiency = calculateEfficiency();
-            const baseSpeed = getBaseSpeed();
-            const actualSpeed = baseSpeed * efficiency;
+            document.getElementById('race-position').textContent = `${race.position}/10`;
+            document.getElementById('race-speed').textContent = `${race.speed} nœuds`;
+            document.getElementById('race-time').textContent = formatTime(elapsed);
+            document.getElementById('race-progress').textContent = `${progress.toFixed(1)}%`;
+            document.getElementById('progress-bar').style.width = `${progress}%`;
             
-            // Mettre à jour la progression
-            const timeDelta = (now - gameState.race.lastUpdateTime) / 1000 / 60;
-            gameState.race.progress += (timeDelta / totalTime) * (actualSpeed / 10) * 100;
-            gameState.race.progress = Math.min(100, gameState.race.progress);
-            gameState.race.lastUpdateTime = now;
+            // Mise à jour de la position du voilier sur la carte
+            updateBoatPosition(progress);
             
-            // Calculer la position basée sur la progression
-            gameState.race.position = Math.max(1, Math.min(10, Math.floor(11 - (gameState.race.progress / 10))));
-            gameState.race.speed = actualSpeed;
-            
-            // Mettre à jour la position du bateau sur la carte
-            updateBoatPosition();
-            
-            // Mettre à jour l'interface
-            document.getElementById('raceTimer').textContent = formatTime(elapsedTime);
-            document.getElementById('raceProgress').style.width = gameState.race.progress + '%';
-            document.getElementById('racePosition').textContent = `Position: ${gameState.race.position}/10`;
-            document.getElementById('raceSpeed').textContent = `Vitesse: ${actualSpeed.toFixed(1)} nœuds`;
-            
-            // Indicateur d'optimisation
-            const optimizationStatus = document.getElementById('optimizationStatus');
-            if (efficiency >= 0.8) {
-                optimizationStatus.textContent = 'État: Optimal';
-                optimizationStatus.className = 'optimization-indicator optimal';
-            } else if (efficiency >= 0.6) {
-                optimizationStatus.textContent = 'État: Moyen';
-                optimizationStatus.className = 'optimization-indicator medium';
-            } else {
-                optimizationStatus.textContent = 'État: Faible';
-                optimizationStatus.className = 'optimization-indicator poor';
-            }
-            
-            // Événements météo aléatoires
-            if (Math.random() < 0.005) { // 0.5% de chance par update
-                triggerWeatherEvent();
-            }
+            // Mise à jour de l'indicateur de vent
+            updateWindIndicator();
             
             // Vérifier si la course est terminée
-            if (gameState.race.progress >= 100) {
-                endRace();
+            if (progress >= 100) {
+                finishRace();
             }
         }
 
-        function updateBoatPosition() {
-            const playerBoat = document.getElementById('playerBoat');
-            const progress = gameState.race.progress / 100;
-            
-            // Positions des checkpoints
-            const checkpoints = [
-                {x: 50, y: 250},
-                {x: 150, y: 200},
-                {x: 250, y: 150},
-                {x: 330, y: 80}
-            ];
-            
-            // Calculer la position interpolée le long du parcours
-            let currentCheckpoint = Math.floor(progress * (checkpoints.length - 1));
-            let segmentProgress = (progress * (checkpoints.length - 1)) % 1;
-            
-            currentCheckpoint = Math.min(currentCheckpoint, checkpoints.length - 2);
-            
-            const start = checkpoints[currentCheckpoint];
-            const end = checkpoints[currentCheckpoint + 1];
-            
-            const x = start.x + (end.x - start.x) * segmentProgress;
-            const y = start.y + (end.y - start.y) * segmentProgress;
-            
-            playerBoat.style.left = x + 'px';
-            playerBoat.style.top = y + 'px';
-            
-            // Marquer les checkpoints passés
-            for (let i = 0; i <= currentCheckpoint; i++) {
-                const checkpoint = document.getElementById(`checkpoint${i + 1}`);
-                if (checkpoint) {
-                    checkpoint.classList.add('passed');
+        function updateBoatPosition(progress) {
+            const playerBoat = document.getElementById('player-boat');
+            if (playerBoat) {
+                const position = 8 + (progress * 0.84); // De 8% à 92% de la largeur
+                playerBoat.style.left = `${position}%`;
+                
+                // Animation plus prononcée quand le bateau va vite
+                if (gameState.currentRace && gameState.currentRace.speed > 18) {
+                    playerBoat.style.animation = 'sailing 1.5s ease-in-out infinite';
+                } else {
+                    playerBoat.style.animation = 'sailing 3s ease-in-out infinite';
                 }
             }
             
-            // Animer les bateaux concurrents
-            const competitors = document.querySelectorAll('.competitor-boat');
-            competitors.forEach((boat, index) => {
-                const competitorProgress = Math.max(0, progress - 0.1 + (index * 0.05));
-                let compCheckpoint = Math.floor(competitorProgress * (checkpoints.length - 1));
-                let compSegmentProgress = (competitorProgress * (checkpoints.length - 1)) % 1;
-                
-                compCheckpoint = Math.min(compCheckpoint, checkpoints.length - 2);
-                compCheckpoint = Math.max(0, compCheckpoint);
-                
-                if (competitorProgress > 0) {
-                    const compStart = checkpoints[compCheckpoint];
-                    const compEnd = checkpoints[Math.min(compCheckpoint + 1, checkpoints.length - 1)];
+            // Mise à jour des positions des concurrents (simulation)
+            updateCompetitorPositions(progress);
+        }
+
+        function updateCompetitorPositions(progress) {
+            const competitors = ['competitor-1', 'competitor-2', 'competitor-3'];
+            
+            competitors.forEach((id, index) => {
+                const competitor = document.getElementById(id);
+                if (competitor && gameState.currentRace) {
+                    // Calcul de la performance des IA basée sur la difficulté
+                    let aiPerformance = 1.0;
+                    let aiVariance = 20;
                     
-                    const compX = compStart.x + (compEnd.x - compStart.x) * compSegmentProgress;
-                    const compY = compStart.y + (compEnd.y - compStart.y) * compSegmentProgress;
+                    switch(gameState.currentRace.difficulty) {
+                        case 'debutant':
+                            aiPerformance = 0.7; // IA 30% plus lentes
+                            aiVariance = 30; // Plus d'erreurs
+                            break;
+                        case 'intermediaire':
+                            aiPerformance = 0.95; // IA légèrement plus lentes
+                            aiVariance = 15;
+                            break;
+                        case 'expert':
+                            aiPerformance = 1.15; // IA 15% plus rapides
+                            aiVariance = 8; // Très consistantes
+                            
+                            // En expert, les IA "optimisent" automatiquement mieux
+                            if (index === 0) aiPerformance = 1.25; // Leader IA très fort
+                            break;
+                    }
                     
-                    boat.style.left = (compX + (index * 10 - 10)) + 'px';
-                    boat.style.top = (compY + (index * 10 - 10)) + 'px';
+                    // Performance basée sur l'optimisation du joueur
+                    const playerOptimization = calculatePlayerOptimization();
+                    let competitorProgress = progress * aiPerformance;
+                    
+                    // En mode expert, si le joueur n'optimise pas bien, les IA en profitent
+                    if (gameState.currentRace.difficulty === 'expert' && playerOptimization < 70) {
+                        competitorProgress += (70 - playerOptimization) * 0.5;
+                    }
+                    
+                    // Ajouter une variance mais moins en expert
+                    const variance = (Math.random() - 0.5) * aiVariance;
+                    competitorProgress += variance;
+                    
+                    const clampedProgress = Math.max(0, Math.min(100, competitorProgress));
+                    const position = 8 + (clampedProgress * 0.84);
+                    competitor.style.left = `${position}%`;
+                    
+                    // Ajustement vertical pour éviter la superposition
+                    const verticalOffset = 45 + (index * 5) + Math.sin(Date.now() / 1000 + index) * 3;
+                    competitor.style.top = `${verticalOffset}%`;
                 }
             });
         }
 
-        function triggerWeatherEvent() {
-            const events = [
-                'Vent fort du Nord-Ouest!',
-                'Calme plat - Vent très faible!',
-                'Grain violent à l\'horizon!',
-                'Vent arrière favorable!'
-            ];
+        function calculatePlayerOptimization() {
+            if (!gameState.currentRace) return 50;
             
-            const event = events[Math.floor(Math.random() * events.length)];
-            gameState.race.weatherEvent = event;
+            const sailValue = gameState.currentRace.sailSetting || 50;
+            const headingValue = gameState.currentRace.heading || 180;
             
-            document.getElementById('weatherAlert').textContent = '🌪️ Alerte Météo: ' + event;
-            document.getElementById('weatherAlert').style.display = 'block';
+            // Logique d'optimisation
+            const optimalSail = 70;
+            const optimalHeading = 45;
             
-            setTimeout(() => {
-                document.getElementById('weatherAlert').style.display = 'none';
-                gameState.race.weatherEvent = null;
-            }, 5000);
+            const sailDiff = Math.abs(sailValue - optimalSail);
+            const headingDiff = Math.abs(headingValue - optimalHeading);
+            
+            return 100 - (sailDiff + headingDiff * 0.5);
         }
 
-        function endRace() {
-            gameState.race.active = false;
-            const finalTime = (Date.now() - gameState.race.startTime) / 1000 / 60;
+        function updateWindIndicator() {
+            const windIndicator = document.getElementById('wind-indicator');
+            if (windIndicator && gameState.currentRace) {
+                const directions = ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW'];
+                const direction = directions[Math.floor(Date.now() / 10000) % directions.length];
+                const windSpeed = 10 + Math.floor(Math.random() * 15);
+                
+                let weatherIcon = '🌬️';
+                if (gameState.currentRace.weatherEffect) {
+                    switch(gameState.currentRace.weatherEffect.name) {
+                        case 'Tempête': weatherIcon = '⛈️'; break;
+                        case 'Vent Favorable': weatherIcon = '💨'; break;
+                        case 'Calme Plat': weatherIcon = '😴'; break;
+                        case 'Grain': weatherIcon = '🌩️'; break;
+                    }
+                }
+                
+                windIndicator.textContent = `${weatherIcon} Vent: ${windSpeed} nds ${direction}`;
+            }
+        }
+
+        function finishRace() {
+            const race = gameState.currentRace;
+            const elapsed = Date.now() - race.startTime;
+            const position = race.position;
             
-            // Calculer les gains
-            let winnings = 0;
-            if (gameState.race.position <= 3) {
-                winnings = [500, 300, 200][gameState.race.position - 1];
-                if (gameState.race.position === 1) {
-                    gameState.player.stats.racesWon++;
+            // Calcul des récompenses
+            let reward = 0;
+            if (position === 1) {
+                reward = 500;
+                gameState.player.victories++;
+            } else if (position === 2) {
+                reward = 300;
+            } else if (position === 3) {
+                reward = 150;
+            } else {
+                reward = 50;
+            }
+            
+            // Bonus de difficulté
+            if (race.difficulty === 'expert') {
+                reward = Math.floor(reward * 1.5);
+            }
+            
+            gameState.player.money += reward;
+            gameState.player.racesCompleted++;
+            gameState.player.totalEarned += reward;
+            
+            // Mise à jour du meilleur temps
+            if (!gameState.player.bestTime || elapsed < gameState.player.bestTime) {
+                gameState.player.bestTime = elapsed;
+            }
+            
+            // Ajouter à l'historique
+            gameState.raceHistory.push({
+                date: new Date().toLocaleDateString(),
+                time: formatTime(elapsed),
+                position: position,
+                reward: reward,
+                difficulty: race.difficulty
+            });
+            
+            gameState.currentRace = null;
+            alert(`Course terminée!\nPosition: ${position}\nRécompense: ${reward}€`);
+            showScreen('main-screen');
+            updateUI();
+        }
+
+        function abandonRace() {
+            if (confirm('Êtes-vous sûr de vouloir abandonner la course ?')) {
+                gameState.currentRace = null;
+                showScreen('main-screen');
+                updateUI();
+            }
+        }
+
+        // Optimisation des voiles et du cap
+        function updateSailOptimization() {
+            const value = document.getElementById('sail-slider').value;
+            document.getElementById('sail-value').textContent = value;
+            updateOptimization();
+        }
+
+        function updateHeadingOptimization() {
+            const value = document.getElementById('heading-slider').value;
+            document.getElementById('heading-value').textContent = value;
+            updateOptimization();
+        }
+
+        function updateOptimization() {
+            const sailValue = document.getElementById('sail-slider').value;
+            const headingValue = document.getElementById('heading-slider').value;
+
+            // Correction : définition de sailMultiplier
+            const sailType = gameState.currentRace.currentSailType;
+            const sailData = sailTypes[sailType] || sailTypes['full'];
+            const sailMultiplier = sailData.speed;
+            
+            const optimization = calculatePlayerOptimization();
+            
+            const statusElement = document.getElementById('optimization-status');
+            
+            if (optimization > 80) {
+                statusElement.textContent = '🟢 Optimisation Excellente';
+                statusElement.className = 'optimization-indicator optimal';
+                gameState.currentRace.speed = (20 + gameState.upgrades.hull * 2) * sailMultiplier;
+            } else if (optimization > 50) {
+                statusElement.textContent = '🟡 Optimisation Moyenne';
+                statusElement.className = 'optimization-indicator good';
+                gameState.currentRace.speed = (15 + gameState.upgrades.hull * 2) * sailMultiplier;
+            } else {
+                statusElement.textContent = '🔴 Optimisation Faible';
+                statusElement.className = 'optimization-indicator poor';
+                gameState.currentRace.speed = (10 + gameState.upgrades.hull * 2) * sailMultiplier;
+            }
+            
+            gameState.currentRace.sailSetting = sailValue;
+            gameState.currentRace.heading = headingValue;
+            
+            // Mise à jour de la fatigue
+            updateCrewFatigue();
+        }
+
+        function updateCrewFatigue() {
+            if (!gameState.currentRace) return;
+            
+            // La fatigue augmente avec le temps et les manœuvres
+            const elapsed = Date.now() - gameState.currentRace.startTime;
+            const baseFatigue = (elapsed / gameState.currentRace.duration) * 30;
+            
+            // Réduction de fatigue avec pilote automatique
+            if (gameState.currentRace.autopilotActive) {
+                gameState.currentRace.crewFatigue = Math.max(0, baseFatigue * 0.3);
+            } else {
+                gameState.currentRace.crewFatigue = Math.min(100, baseFatigue);
+            }
+            
+            document.getElementById('crew-fatigue').textContent = `${Math.floor(gameState.currentRace.crewFatigue)}%`;
+        }
+
+        // Gestion de la boutique
+        function initShop() {
+            const shopItems = document.getElementById('shop-items');
+            shopItems.innerHTML = '';
+            
+            for (const [key, data] of Object.entries(upgradeData)) {
+                const currentLevel = gameState.upgrades[key] || 0;
+                const basePrice = gameState.shopPrices[key] || 1000;
+                const price = Math.floor(basePrice * Math.pow(1.5, currentLevel));
+                const canAfford = gameState.player.money >= price;
+                const maxReached = currentLevel >= data.maxLevel;
+                
+                const item = document.createElement('div');
+                item.className = 'shop-item';
+                item.innerHTML = `
+                    <div>
+                        <h4>${data.name}</h4>
+                        <p>Niveau: ${currentLevel}/${data.maxLevel}</p>
+                        <p>Effet: ${data.effect}</p>
+                        <p>Prix: ${price}€</p>
+                    </div>
+                    <button class="btn ${canAfford && !maxReached ? 'success' : ''}" 
+                            onclick="buyUpgrade('${key}')" 
+                            ${!canAfford || maxReached ? 'disabled' : ''}>
+                        ${maxReached ? 'MAX' : 'Acheter'}
+                    </button>
+                `;
+                shopItems.appendChild(item);
+            }
+        }
+
+        function buyUpgrade(type) {
+            const currentLevel = gameState.upgrades[type] || 0;
+            const basePrice = gameState.shopPrices[type] || 1000;
+            const price = Math.floor(basePrice * Math.pow(1.5, currentLevel));
+            const maxLevel = upgradeData[type] ? upgradeData[type].maxLevel : 10;
+            
+            if (gameState.player.money >= price && currentLevel < maxLevel) {
+                gameState.player.money -= price;
+                gameState.upgrades[type] = currentLevel + 1;
+                gameState.player.upgradesBought++;
+                
+                showNotification(`✅ ${upgradeData[type].name} amélioré au niveau ${gameState.upgrades[type]} !`, 'success');
+                
+                updateUI();
+                initShop();
+            } else if (gameState.player.money < price) {
+                showNotification(`❌ Argent insuffisant ! Il vous faut ${price}€`, 'error');
+            } else {
+                showNotification(`❌ Niveau maximum atteint !`, 'warning');
+            }
+        }
+
+        // Gestion du manager
+        function initManager() {
+            const managerItems = document.getElementById('manager-items');
+            managerItems.innerHTML = '';
+            
+            for (const [key, data] of Object.entries(upgradeData)) {
+                const item = document.createElement('div');
+                item.className = 'shop-item';
+                item.innerHTML = `
+                    <div>
+                        <h4>${data.name}</h4>
+                        <p>Prix de base: ${gameState.shopPrices[key]}€</p>
+                    </div>
+                    <input type="number" value="${gameState.shopPrices[key]}" 
+                           onchange="updatePrice('${key}', this.value)" 
+                           style="width: 100px; margin-right: 10px;">
+                `;
+                managerItems.appendChild(item);
+            }
+            // Ajout du réglage météo
+            const weatherDiv = document.createElement('div');
+            weatherDiv.className = 'shop-item';
+            weatherDiv.innerHTML = `
+                <div>
+                    <h4>Intervalle Intempéries</h4>
+                    <p>Temps entre deux intempéries (minutes)</p>
+                </div>
+                <input type="number" min="1" max="60" value="${gameState.weatherIntervalMinutes}" 
+                       onchange="updateWeatherInterval(this.value)" style="width: 100px; margin-right: 10px;">
+            `;
+            managerItems.appendChild(weatherDiv);
+        }
+
+        function updatePrice(type, newPrice) {
+            gameState.shopPrices[type] = parseInt(newPrice);
+            updateUI();
+        }
+
+        function updateWeatherInterval(newInterval) {
+            gameState.weatherIntervalMinutes = parseInt(newInterval);
+            updateUI();
+        }
+
+        function resetPrices() {
+            gameState.shopPrices = {
+                hull: 500,
+                sail: 300,
+                rudder: 200,
+                engine: 800,
+                autopilot: 1000
+            };
+            gameState.weatherIntervalMinutes = 5;
+            initManager();
+        }
+
+        // Gestion des changements météo adaptatifs
+        function checkWeatherEvent() {
+            if (!gameState.currentRace) return;
+            
+            const elapsed = Date.now() - gameState.currentRace.lastWeatherChange;
+            let weatherInterval;
+            
+            // Utilisation du réglage manager si défini
+            if (typeof gameState.weatherIntervalMinutes === 'number' && gameState.weatherIntervalMinutes > 0) {
+                weatherInterval = gameState.weatherIntervalMinutes * 60000;
+            } else {
+                // Fréquence adaptative selon la durée de course (fallback)
+                if (gameState.currentRace.duration <= 1800000) { // 30 min ou moins
+                    weatherInterval = 60000; // 1 minute
+                } else if (gameState.currentRace.duration <= 10800000) { // 3h ou moins
+                    weatherInterval = 300000; // 5 minutes
+                } else {
+                    weatherInterval = 900000; // 15 minutes
                 }
             }
             
-            gameState.player.money += winnings;
+            if (elapsed >= weatherInterval) {
+                const event = weatherEvents[Math.floor(Math.random() * weatherEvents.length)];
+                gameState.currentRace.weatherEffect = {
+                    ...event,
+                    endTime: Date.now() + event.duration
+                };
+                gameState.currentRace.lastWeatherChange = Date.now();
+                
+                const weatherAlert = document.getElementById('weather-alert');
+                weatherAlert.textContent = `⛈️ ${event.name}: ${event.effect} - Voiles recommandées: ${sailTypes[event.sailChange].name}`;
+                weatherAlert.style.display = 'block';
+                
+                // Pilote automatique réagit automatiquement
+                if (gameState.currentRace.autopilotActive) {
+                    gameState.currentRace.currentSailType = event.sailChange;
+                    document.getElementById('sail-type-select').value = event.sailChange;
+                    showNotification(`🤖 Pilote auto: Voiles changées pour ${sailTypes[event.sailChange].name}`, 'info');
+                }
+                
+                setTimeout(() => {
+                    weatherAlert.style.display = 'none';
+                    if (gameState.currentRace) {
+                        gameState.currentRace.weatherEffect = null;
+                    }
+                }, event.duration);
+            }
+        }
+
+        // Nouvelle fonction pour changer le type de voiles
+        function changeSailType() {
+            if (!gameState.currentRace) return;
             
-            // Enregistrer la course
-            gameState.player.stats.recentRaces.unshift({
-                position: gameState.race.position,
-                time: finalTime,
-                winnings: winnings,
-                date: new Date().toLocaleDateString('fr-FR')
+            const newSailType = document.getElementById('sail-type-select').value;
+            gameState.currentRace.currentSailType = newSailType;
+            
+            // Augmentation de la fatigue lors du changement de voiles
+            if (!gameState.currentRace.autopilotActive) {
+                gameState.currentRace.crewFatigue = Math.min(100, gameState.currentRace.crewFatigue + 5);
+            }
+            
+            updateOptimization();
+            showNotification(`⛵ Voiles changées: ${sailTypes[newSailType].name}`, 'info');
+        }
+
+        // Fonction pour activer/désactiver le pilote automatique
+        function toggleAutopilot() {
+            if (!gameState.currentRace) return;
+            
+            if (gameState.upgrades.autopilot === 0) {
+                showNotification('❌ Pilote automatique non disponible. Achetez-le en boutique !', 'error');
+                return;
+            }
+            
+            gameState.currentRace.autopilotActive = !gameState.currentRace.autopilotActive;
+            const btn = document.getElementById('autopilot-btn');
+            
+            if (gameState.currentRace.autopilotActive) {
+                btn.textContent = '⏸️ Désactiver';
+                btn.className = 'btn warning';
+                showNotification('🤖 Pilote automatique activé', 'success');
+            } else {
+                btn.textContent = '▶️ Activer';
+                btn.className = 'btn';
+                showNotification('👨‍✈️ Pilote manuel activé', 'info');
+            }
+        }
+
+        // Gestion des classements
+        function updateRankings() {
+            // Historique des courses
+            const historyElement = document.getElementById('race-history');
+            historyElement.innerHTML = '';
+            
+            gameState.raceHistory.slice(-10).reverse().forEach((race, index) => {
+                const item = document.createElement('div');
+                item.className = 'leaderboard-item';
+                item.innerHTML = `
+                    <div>
+                        <strong>${race.date}</strong><br>
+                        Difficulté: ${race.difficulty}<br>
+                        Temps: ${race.time}
+                    </div>
+                    <div style="text-align: right;">
+                        <strong>Position: ${race.position}</strong><br>
+                        Récompense: ${race.reward}€
+                    </div>
+                `;
+                historyElement.appendChild(item);
             });
             
-            // Garder seulement les 10 dernières courses
-            if (gameState.player.stats.recentRaces.length > 10) {
-                gameState.player.stats.recentRaces.pop();
+            // Classement actuel (simulé) - RESET à 0
+            const leaderboard = document.getElementById('current-leaderboard');
+            leaderboard.innerHTML = '';
+            
+            const currentRanking = [
+                { name: 'Vous', position: 1, points: 0 },
+                { name: 'Captain Morgan', position: 2, points: 0 },
+                { name: 'Sea Wolf', position: 3, points: 0 },
+                { name: 'Storm Rider', position: 4, points: 0 },
+                { name: 'Wave Master', position: 5, points: 0 }
+            ].sort((a, b) => b.points - a.points);
+            
+            currentRanking.forEach((player, index) => {
+                const item = document.createElement('div');
+                item.className = 'leaderboard-item';
+                item.innerHTML = `
+                    <div>
+                        <strong>${index + 1}. ${player.name}</strong>
+                    </div>
+                    <div>
+                        <strong>${player.points} pts</strong>
+                    </div>
+                `;
+                leaderboard.appendChild(item);
+            });
+        }
+
+        // Simulation du temps d'absence avec pilote automatique
+        function simulateAbsence() {
+            const lastSave = JSON.parse(localStorage.getItem('sailingGameLastSave') || '{}');
+            if (lastSave.timestamp && gameState.currentRace) {
+                const timeDiff = Date.now() - lastSave.timestamp;
+                const raceElapsed = Date.now() - gameState.currentRace.startTime;
+                
+                // Ajuster le temps de début de la course
+                gameState.currentRace.startTime = Date.now() - (raceElapsed + timeDiff);
+                
+                // Performance du pilote automatique pendant l'absence
+                if (timeDiff > 0) {
+                    const autopilotLevel = gameState.upgrades.autopilot;
+                    let autopilotEfficiency = 0.3 + (autopilotLevel * 0.07); // 30% à 100% selon niveau
+                    
+                    if (autopilotLevel === 0) {
+                        autopilotEfficiency = 0.1; // Très mauvais sans pilote auto
+                        showNotification('⚠️ Absence sans pilote automatique : performances dégradées !', 'warning');
+                    } else {
+                        showNotification(`🤖 Pilote automatique niveau ${autopilotLevel} a géré votre absence`, 'info');
+                    }
+                    
+                    const progressDuringAbsence = Math.min(timeDiff / gameState.currentRace.duration, 0.8) * autopilotEfficiency;
+                    gameState.currentRace.currentDistance += progressDuringAbsence * gameState.currentRace.totalDistance;
+                    
+                    // Le pilote automatique active automatiquement le mode auto
+                    if (autopilotLevel > 0) {
+                        gameState.currentRace.autopilotActive = true;
+                    }
+                }
             }
-            
-            // Mettre à jour le meilleur temps
-            if (!gameState.player.stats.bestTime || finalTime < gameState.player.stats.bestTime) {
-                gameState.player.stats.bestTime = finalTime;
-            }
-            
-            document.getElementById('continueRaceBtn').style.display = 'none';
-            
-            // Sauvegarder immédiatement après la fin de course
+        }
+
+        // Sauvegarde et chargement
+        function saveGame() {
             const saveData = {
-                gameState: gameState,
+                ...gameState,
                 timestamp: Date.now()
             };
-            localStorage.setItem('sailboat_game_auto', JSON.stringify(saveData));
-            
-            alert(`Course terminée!\nPosition: ${gameState.race.position}/10\nTemps: ${formatTime(finalTime)}\nGains: ${winnings} 💰`);
-            
-            updateUI();
-            console.log('Course terminée et sauvegardée');
+            localStorage.setItem('sailingGameSave', JSON.stringify(saveData));
+            localStorage.setItem('sailingGameLastSave', JSON.stringify({ timestamp: Date.now() }));
+            alert('Jeu sauvegardé avec succès !');
         }
 
-        function buyUpgrade(upgrade) {
-            const price = gameState.prices[upgrade];
-            
-            if (gameState.player.money >= price && !gameState.player.upgrades[upgrade]) {
-                gameState.player.money -= price;
-                gameState.player.upgrades[upgrade] = true;
+        function loadGame() {
+            const savedData = localStorage.getItem('sailingGameSave');
+            if (savedData) {
+                const parsed = JSON.parse(savedData);
+                gameState = { ...gameState, ...parsed };
+                simulateAbsence();
                 updateUI();
-                alert(`${upgrade} acheté avec succès !`);
-            } else if (gameState.player.upgrades[upgrade]) {
-                alert('Amélioration déjà achetée !');
-            } else {
-                alert('Pas assez d\'argent !');
-            }
-        }
-
-        function updateUI() {
-            // Mettre à jour l'argent
-            document.getElementById('playerMoney').textContent = gameState.player.money;
-            
-            // Mettre à jour les prix
-            document.getElementById('sailsPrice').textContent = gameState.prices.sails;
-            document.getElementById('hullPrice').textContent = gameState.prices.hull;
-            document.getElementById('enginePrice').textContent = gameState.prices.engine;
-            
-            // Mettre à jour les statistiques
-            document.getElementById('racesWon').textContent = gameState.player.stats.racesWon;
-            document.getElementById('bestTime').textContent = gameState.player.stats.bestTime ? 
-                formatTime(gameState.player.stats.bestTime) : '--:--';
-            
-            // Mettre à jour les courses récentes
-            const recentRacesDiv = document.getElementById('recentRaces');
-            recentRacesDiv.innerHTML = '';
-            gameState.player.stats.recentRaces.forEach(race => {
-                const raceDiv = document.createElement('div');
-                raceDiv.className = 'leaderboard-item';
-                raceDiv.innerHTML = `
-                    <span>${race.date}</span>
-                    <span>P${race.position} - ${formatTime(race.time)}</span>
-                    <span>+${race.winnings}💰</span>
-                `;
-                recentRacesDiv.appendChild(raceDiv);
-            });
-        }
-
-        function applyManagerSettings() {
-            gameState.prices.sails = parseInt(document.getElementById('sailsPriceSlider').value);
-            gameState.prices.hull = parseInt(document.getElementById('hullPriceSlider').value);
-            gameState.prices.engine = parseInt(document.getElementById('enginePriceSlider').value);
-            gameState.prices.startingMoney = parseInt(document.getElementById('startingMoneySlider').value);
-            
-            updateUI();
-            alert('Réglages appliqués !');
-        }
-
-        function resetGame() {
-            if (confirm('Êtes-vous sûr de vouloir réinitialiser le jeu ?')) {
-                gameState = {
-                    currentMenu: 'mainMenu',
-                    race: {
-                        active: false,
-                        startTime: null,
-                        duration: 5,
-                        difficulty: 'beginner',
-                        progress: 0,
-                        position: 1,
-                        speed: 0,
-                        sailTrim: 50,
-                        heading: 180,
-                        lastUpdateTime: null,
-                        weatherEvent: null
-                    },
-                    player: {
-                        money: gameState.prices.startingMoney,
-                        upgrades: {
-                            sails: false,
-                            hull: false,
-                            engine: false
-                        },
-                        stats: {
-                            racesWon: 0,
-                            bestTime: null,
-                            recentRaces: []
-                        }
-                    },
-                    prices: {
-                        sails: 500,
-                        hull: 750,
-                        engine: 1200,
-                        startingMoney: 1000
-                    }
-                };
                 
-                document.getElementById('continueRaceBtn').style.display = 'none';
-                updateUI();
-                showMenu('mainMenu');
-                alert('Jeu réinitialisé !');
-            }
-        }
-
-        // Event listeners pour les contrôles
-        document.getElementById('sailTrim').addEventListener('input', function(e) {
-            gameState.race.sailTrim = parseInt(e.target.value);
-            document.getElementById('sailTrimValue').textContent = e.target.value + '%';
-        });
-
-        document.getElementById('heading').addEventListener('input', function(e) {
-            gameState.race.heading = parseInt(e.target.value);
-            document.getElementById('headingValue').textContent = e.target.value + '°';
-        });
-
-        // Event listeners pour le manager
-        document.getElementById('sailsPriceSlider').addEventListener('input', function(e) {
-            document.getElementById('sailsPriceManager').textContent = e.target.value;
-        });
-
-        document.getElementById('hullPriceSlider').addEventListener('input', function(e) {
-            document.getElementById('hullPriceManager').textContent = e.target.value;
-        });
-
-        document.getElementById('enginePriceSlider').addEventListener('input', function(e) {
-            document.getElementById('enginePriceManager').textContent = e.target.value;
-        });
-
-        document.getElementById('startingMoneySlider').addEventListener('input', function(e) {
-            document.getElementById('startingMoneyManager').textContent = e.target.value;
-        });
-
-        // Sauvegarde automatique toutes les 30 secondes
-        setInterval(() => {
-            try {
-                const saveData = {
-                    gameState: gameState,
-                    timestamp: Date.now()
-                };
-                localStorage.setItem('sailboat_game_auto', JSON.stringify(saveData));
-                console.log('Sauvegarde automatique effectuée - Course active:', gameState.race.active);
-            } catch (error) {
-                console.error('Erreur sauvegarde automatique:', error);
-            }
-        }, 10000); // Réduit à 10 secondes pour les tests
-
-        // Chargement automatique au démarrage
-        window.addEventListener('DOMContentLoaded', () => {
-            console.log('Chargement du jeu...');
-            try {
-                const autoSave = localStorage.getItem('sailboat_game_auto');
-                console.log('Données sauvegardées trouvées:', !!autoSave);
-                
-                if (autoSave) {
-                    const saveData = JSON.parse(autoSave);
-                    const offlineTime = (Date.now() - saveData.timestamp) / 1000 / 60;
-                    console.log('Temps hors ligne:', offlineTime.toFixed(2), 'minutes');
-                    console.log('Course active dans la sauvegarde:', saveData.gameState.race.active);
+                // Restaurer les réglages de course si une course est en cours
+                if (gameState.currentRace) {
+                    document.getElementById('sail-slider').value = gameState.currentRace.sailSetting || 50;
+                    document.getElementById('heading-slider').value = gameState.currentRace.heading || 180;
+                    document.getElementById('sail-value').textContent = gameState.currentRace.sailSetting || 50;
+                    document.getElementById('heading-value').textContent = gameState.currentRace.heading || 180;
+                    document.getElementById('sail-type-select').value = gameState.currentRace.currentSailType || 'full';
                     
-                    gameState = saveData.gameState;
-                    
-                    if (gameState.race.active) {
-                        // Ajuster le temps de départ pour tenir compte du temps hors ligne
-                        gameState.race.startTime = Date.now() - (offlineTime * 60 * 1000);
-                        gameState.race.lastUpdateTime = Date.now();
-                        
-                        simulateOfflineProgress(offlineTime);
-                        document.getElementById('continueRaceBtn').style.display = 'block';
-                        console.log('Course restaurée - Progress:', gameState.race.progress);
-                        
-                        // Si on est sur l'écran de course, mettre à jour immédiatement
-                        if (gameState.currentMenu === 'raceActive') {
-                            showMenu('raceActive');
-                        }
+                    // Restaurer l'état du pilote automatique
+                    const autopilotBtn = document.getElementById('autopilot-btn');
+                    if (gameState.currentRace.autopilotActive && autopilotBtn) {
+                        autopilotBtn.textContent = '⏸️ Désactiver';
+                        autopilotBtn.className = 'btn warning';
                     }
                     
-                    updateUI();
-                } else {
-                    console.log('Aucune sauvegarde trouvée, démarrage nouveau jeu');
+                    updateOptimization();
                 }
-            } catch (error) {
-                console.error('Erreur lors du chargement:', error);
+            }
+        }
+
+        function exportSave() {
+            const saveData = JSON.stringify(gameState, null, 2);
+            const blob = new Blob([saveData], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'sailing_game_save.json';
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        function importSave() {
+            const file = document.getElementById('import-file').files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    try {
+                        const importedData = JSON.parse(e.target.result);
+                        gameState = { ...gameState, ...importedData };
+                        updateUI();
+                        alert('Sauvegarde importée avec succès !');
+                    } catch (error) {
+                        alert('Erreur lors de l\'importation de la sauvegarde');
+                    }
+                };
+                reader.readAsText(file);
+            }
+        }
+
+        // Mise à jour de l'interface
+        function updateUI() {
+            // Statistiques principales
+            document.getElementById('player-money').textContent = `${gameState.player.money} €`;
+            document.getElementById('races-completed').textContent = gameState.player.racesCompleted;
+            document.getElementById('victories').textContent = gameState.player.victories;
+            document.getElementById('best-time').textContent = gameState.player.bestTime ? formatTime(gameState.player.bestTime) : '--:--';
+            
+            // Boutique
+            const shopMoney = document.getElementById('shop-money');
+            if (shopMoney) shopMoney.textContent = `${gameState.player.money} €`;
+            
+            // Manager
+            const totalEarned = document.getElementById('total-earned');
+            const totalPlaytime = document.getElementById('total-playtime');
+            const upgradesBought = document.getElementById('upgrades-bought');
+            
+            if (totalEarned) totalEarned.textContent = `${gameState.player.totalEarned} €`;
+            if (totalPlaytime) {
+                const playtime = Math.floor((Date.now() - gameState.startTime) / 60000);
+                totalPlaytime.textContent = `${Math.floor(playtime / 60)}h ${playtime % 60}m`;
+            }
+            if (upgradesBought) upgradesBought.textContent = gameState.player.upgradesBought;
+            
+            // Mise à jour des boutons de navigation
+            updateNavigationButtons();
+        }
+
+        // Boucle de mise à jour du jeu
+        function updateGame() {
+            if (gameState.currentRace) {
+                updateRaceUI();
+                // Vérification supplémentaire après updateRaceUI (car finishRace peut être appelée)
+                if (!gameState.currentRace) return;
+                
+                // Simulation de la position en course avec IA plus intelligentes
+                const elapsed = Date.now() - gameState.currentRace.startTime;
+                const raceProgress = elapsed / gameState.currentRace.duration;
+                
+                // Calcul de l'optimisation du joueur
+                const playerOptimization = calculatePlayerOptimization();
+                
+                // Ajustement de position basé sur la performance et la difficulté
+                let positionChange = 0;
+                
+                if (gameState.currentRace.difficulty === 'expert') {
+                    // En expert, les IA sont très agressives
+                    if (playerOptimization > 85 && Math.random() < 0.08) {
+                        positionChange = -1; // Chance de dépasser
+                    } else if (playerOptimization < 60 && Math.random() < 0.15) {
+                        positionChange = 1; // Risque élevé de se faire dépasser
+                    } else if (playerOptimization < 40 && Math.random() < 0.25) {
+                        positionChange = 2; // Très mauvaise optimisation = chute rapide
+                    }
+                } else if (gameState.currentRace.difficulty === 'intermediaire') {
+                    // Équilibré
+                    if (playerOptimization > 80 && Math.random() < 0.05) {
+                        positionChange = -1;
+                    } else if (playerOptimization < 50 && Math.random() < 0.08) {
+                        positionChange = 1;
+                    }
+                } else {
+                    // Débutant - plus clément
+                    if (playerOptimization > 75 && Math.random() < 0.12) {
+                        positionChange = -1;
+                    } else if (playerOptimization < 30 && Math.random() < 0.05) {
+                        positionChange = 1;
+                    }
+                }
+                
+                // Appliquer le changement de position
+                gameState.currentRace.position = Math.max(1, Math.min(10, gameState.currentRace.position + positionChange));
+                
+                // Notification si changement de position significatif
+                if (positionChange !== 0) {
+                    const newPos = gameState.currentRace.position;
+                    if (positionChange < 0) {
+                        showNotification(`🚀 Vous êtes maintenant ${newPos}e !`, 'success');
+                    } else {
+                        showNotification(`⚠️ Vous glissez à la ${newPos}e place !`, 'warning');
+                    }
+                }
+            }
+            
+            // Sauvegarde automatique toutes les 5 minutes
+            if (Date.now() % 300000 < 1000) {
+                saveGame();
+            }
+        }
+
+        // Utilitaires
+        function formatTime(milliseconds) {
+            const seconds = Math.floor(milliseconds / 1000);
+            const minutes = Math.floor(seconds / 60);
+            const hours = Math.floor(minutes / 60);
+            
+            if (hours > 0) {
+                return `${hours}:${(minutes % 60).toString().padStart(2, '0')}:${(seconds % 60).toString().padStart(2, '0')}`;
+            } else {
+                return `${minutes}:${(seconds % 60).toString().padStart(2, '0')}`;
+            }
+        }
+
+        // Écouteurs d'événements
+        document.addEventListener('DOMContentLoaded', function() {
+            initGame();
+            
+            // Initialisation des écrans
+            document.addEventListener('click', function(e) {
+                if (e.target.closest('#shop')) {
+                    initShop();
+                } else if (e.target.closest('#manager')) {
+                    initManager();
+                } else if (e.target.closest('#rankings')) {
+                    updateRankings();
+                }
+            });
+            
+            // Sauvegarde avant fermeture
+            window.addEventListener('beforeunload', function() {
+                saveGame();
+            });
+            
+            // Gestion de la visibilité de la page
+            document.addEventListener('visibilitychange', function() {
+                if (document.hidden) {
+                    saveGame();
+                } else {
+                    loadGame();
+                }
+            });
+        });
+
+        // Fonctions supplémentaires pour améliorer l'expérience
+        function resetGame() {
+            if (confirm('Êtes-vous sûr de vouloir réinitialiser complètement le jeu ?')) {
+                localStorage.removeItem('sailingGameSave');
+                localStorage.removeItem('sailingGameLastSave');
+                location.reload();
+            }
+        }
+
+        function toggleFullscreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen();
+            } else {
+                document.exitFullscreen();
+            }
+        }
+
+        // Gestion des touches pour les raccourcis
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                showScreen('main-screen');
+            } else if (e.key === 's' && e.ctrlKey) {
+                e.preventDefault();
+                saveGame();
+            } else if (e.key === 'r' && e.ctrlKey) {
+                e.preventDefault();
+                loadGame();
             }
         });
 
-        // Boucle de jeu principale
-        setInterval(() => {
-            updateCurrentTime();
-            if (gameState.race.active && gameState.currentMenu === 'raceActive') {
-                updateRaceUI();
-            }
-        }, 1000);
+        // Animation des vagues pour l'arrière-plan
+        function createWaveAnimation() {
+            const style = document.createElement('style');
+            style.textContent = `
+                body::before {
+                    content: '';
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    height: 100%;
+                    background: 
+                        radial-gradient(circle at 20% 80%, rgba(120, 215, 255, 0.1) 0%, transparent 50%),
+                        radial-gradient(circle at 80% 20%, rgba(255, 255, 255, 0.1) 0%, transparent 50%);
+                    pointer-events: none;
+                    z-index: -1;
+                    animation: waveMove 20s ease-in-out infinite;
+                }
+                
+                @keyframes waveMove {
+                    0%, 100% { transform: translateX(0) translateY(0); }
+                    25% { transform: translateX(-10px) translateY(-5px); }
+                    50% { transform: translateX(5px) translateY(10px); }
+                    75% { transform: translateX(-5px) translateY(-10px); }
+                }
+            `;
+            document.head.appendChild(style);
+        }
 
-        // Mise à jour initiale
-        updateCurrentTime();
-        updateUI();
-    </script>
+        // Initialisation de l'animation des vagues
+        createWaveAnimation();
+
+        // Ajout d'effets sonores (simulation)
+        function playSound(soundType) {
+            // Ici, vous pourriez ajouter des vrais sons
+            console.log(`🔊 Son: ${soundType}`);
+        }
+
+        // Améliorations visuelles pour les transitions
+        function addTransitionEffects() {
+            const style = document.createElement('style');
+            style.textContent = `
+                .btn {
+                    position: relative;
+                    overflow: hidden;
+                }
+                
+                .btn::before {
+                    content: '';
+                    position: absolute;
+                    top: 0;
+                    left: -100%;
+                    width: 100%;
+                    height: 100%;
+                    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+                    transition: left 0.5s;
+                }
+                
+                .btn:hover::before {
+                    left: 100%;
+                }
+                
+                .card {
+                    transition: transform 0.3s ease, box-shadow 0.3s ease;
+                }
+                
+                .card:hover {
+                    transform: translateY(-5px);
+                    box-shadow: 0 12px 40px rgba(0,0,0,0.15);
+                }
+            `;
+            document.head.appendChild(style);
+        }
+
+        addTransitionEffects();
+
+        // Système de notifications
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                padding: 15px 20px;
+                border-radius: 8px;
+                color: white;
+                font-weight: bold;
+                z-index: 1000;
+                animation: slideIn 0.3s ease;
+                max-width: 300px;
+            `;
+            
+            switch(type) {
+                case 'success':
+                    notification.style.background = '#27ae60';
+                    break;
+                case 'warning':
+                    notification.style.background = '#f39c12';
+                    break;
+                case 'error':
+                    notification.style.background = '#e74c3c';
+                    break;
+                default:
+                    notification.style.background = '#3498db';
+            }
+            
+            notification.textContent = message;
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.style.animation = 'slideOut 0.3s ease';
+                setTimeout(() => {
+                    notification.remove();
+                }, 300);
+            }, 3000);
+        }
+
+        // Ajout des animations CSS pour les notifications
+        const notificationStyle = document.createElement('style');
+        notificationStyle.textContent = `
+            @keyframes slideIn {
+                from { transform: translateX(100%); opacity: 0; }
+                to { transform: translateX(0); opacity: 1; }
+            }
+            
+            @keyframes slideOut {
+                from { transform: translateX(0); opacity: 1; }
+                to { transform: translateX(100%); opacity: 0; }
+            }
+        `;
+        document.head.appendChild(notificationStyle);
+    // Fonction pour mettre à jour l'intervalle météo depuis le menu manager
+function updateWeatherInterval(newValue) {
+    const val = parseInt(newValue);
+    if (!isNaN(val) && val > 0 && val <= 60) {
+        gameState.weatherIntervalMinutes = val;
+    }
+}
+
+</script>
+</body>
+</html>
